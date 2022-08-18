@@ -1,0 +1,116 @@
+---
+title: "Day 8 Activities - Data Viz"
+author: "Colleen McCamy"
+date: "2022-08-17"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+```{r}
+
+library(tidyverse)
+library(here)
+library(janitor)
+library(lubridate)
+library(grid)
+
+#library(patchwork)
+library(ggrepel)
+library(gghighlight)
+library(paletteer)
+#library(ggExtra)
+#library(ggbeeswarm)
+#library(gapminder)
+#library(forcats)
+#library(sf)
+
+```
+
+
+Reading in data
+
+```{r}
+
+space_launches <- read_csv(here::here("data", "space_launches.csv"))
+
+launch_date <- space_launches |> 
+  filter(str_detect(type, pattern = "Thor Delta"))
+
+```
+
+create your worst possible graph by customizing (from the ggplot default) in at least 8 ways - more encouraged - to make it as terrible as possible
+
+```{r}
+
+img <- jpeg::readJPEG(here("Chris_Hemsworth_as_Thor.jpeg"))
+
+my_great_graph <- ggplot(data = launch_date, aes(x = mission, y = type)) +
+  scale_fill_continuous(guide = FALSE) +
+  annotation_custom(rasterGrob(img, 
+                               width = unit(1,"npc"), 
+                               height = unit(1,"npc")), 
+                    -Inf, Inf, -Inf, Inf) +
+  geom_jitter(fill = "#FF00F3", color = "#8AAE98") +
+   theme(panel.grid.major.x = element_line(color = "#6C1A09"),
+        panel.grid.minor.y = element_line(color = "#E6F407"), 
+        axis.title = element_text(color = "#68F1F1", size = 25),
+        axis.text.y = element_text(color = "#33FF84"),
+        text = element_text(size = 18, family="Comic Sans MS"),
+        panel.background = element_rect(fill = "#8A637A")) +
+  labs(y = "Thor", x = "Mission", title = "Types and Mission",
+        caption = "image not copywritten")
+
+my_great_graph
+
+ggsave(here::here("plots", "thor_plot.png"))
+
+class(launch_date$launch_date)
+
+launch_years <- launch_date |> 
+  mutate(launch_date = lubridate::dmy(launch_date)) |> 
+  mutate(year = year(launch_date))
+
+
+```
+
+
+```{r}
+
+sf_emissions <- read_csv(here("data", "San_Francisco_Communitywide_Greenhouse_Gas_Inventory.csv"))
+
+```
+
+
+Create a summary table of total annual greenhouse gas emissions (only from Emissions_mtCO2e column) by sector_general
+
+```{r}
+
+sf_emissions_sum <- sf_emissions |> 
+  group_by(Sector_General) |> 
+  summarize(sum(Emissions_mtCO2e, na.rm = TRUE))
+
+```
+
+
+Create a summary table of total annual greenhouse gas emissions (only from Emissions_mtCO2e column) by year and commodity type
+
+```{r}
+
+sf_year_com <- sf_emissions |> 
+  group_by(Calendar_Year, Commodity_Type) |> 
+  summarize(emissions = sum(Emissions_mtCO2e, na.rm = TRUE))
+
+```
+
+
+Create a subset of the data that only contains observations from 2005 on, only for observations where Sector_Detail2 contains the pattern “PG&E”, then limit to columns Calendar_Year, Sector_Detail2 and Emissions_mtCO2e.
+
+```{r}
+
+
+
+```
+
